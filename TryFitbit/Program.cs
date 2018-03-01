@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using CsvHelper;
+using System.IO;
 
 namespace TryFitbit
 {
@@ -69,12 +70,18 @@ namespace TryFitbit
                 IntradayData intradayData = GetIntraDayTimeSeriesAsync(client, date).GetAwaiter().GetResult();
 
                 Console.WriteLine("Intraday Data:");
-
-                foreach (var set in intradayData.DataSet.Where(d => d.Value != "0"))
+                using (var sw = new StreamWriter(@"IntraDayData.csv"))
                 {
-                    Console.Write(set.Value + " ");
-                    Console.WriteLine(set.Time);
-                    //want to use CsvHelper to write data to a file
+                    var writer = new CsvWriter(sw);
+                    foreach (var set in intradayData.DataSet.Where(d => d.Value != "0"))
+                    {
+                        Console.Write(set.Value + " ");
+                        Console.WriteLine(set.Time);
+                        writer.WriteField(set.Value);
+                        writer.WriteField(set.Time);
+                        writer.NextRecord();
+                        //want to use CsvHelper to write data to a file
+                    }
                 }
 
 
